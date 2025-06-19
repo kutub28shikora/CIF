@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Compact CIF Widget with Transcript</title>
+  <title>Compact CIF Widget</title>
   <meta name="viewport" content="width=380, initial-scale=1">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -114,72 +114,14 @@
       font-size: 12px;
       margin-top: 1px;
     }
-
     .main-content {
       padding: 10px;
       font-size: 13px;
     }
-
-    /* Transcript section */
-    .transcript-section {
-      background: #fff;
-      border-top: 1px solid #dbe4db;
-      padding: 8px 10px 5px 10px;
-      font-size: 13px;
-      color: #222;
-      max-height: 110px;
-      overflow-y: auto;
-    }
-    .transcript-title {
-      font-size: 12px;
-      font-weight: bold;
-      color: #0057b8;
-      margin-bottom: 4px;
-      letter-spacing: 0.04em;
-    }
-    .transcript-list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-    .transcript-list li {
-      margin-bottom: 5px;
-      display: flex;
-      align-items: flex-start;
-      gap: 6px;
-    }
-    .transcript-agent {
-      color: #0057b8;
-      font-weight: 600;
-    }
-    .transcript-caller {
-      color: #28a745;
-      font-weight: 600;
-    }
-    .transcript-time {
-      font-size: 10px;
-      color: #888;
-      margin-left: 4px;
-      margin-top: 2px;
-    }
-    .transcript-bubble {
-      background: #f0f4f7;
-      border-radius: 7px;
-      padding: 4px 8px;
-      display: inline-block;
-      max-width: 76%;
-      word-break: break-word;
-    }
-    .transcript-icon {
-      font-size: 13px;
-      margin-right: 2px;
-      margin-top: 2px;
-      opacity: 0.7;
-    }
     /* Responsive adjustments */
     @media (max-width: 400px) {
       body { min-width: 0; }
-      .main-content, .call-alert, .transcript-section { padding-left: 4px; padding-right: 4px; }
+      .main-content, .call-alert { padding-left: 4px; padding-right: 4px; }
     }
   </style>
 </head>
@@ -214,36 +156,8 @@
   </div>
   <!-- Main Content (optional) -->
   <div class="main-content">
+    <!-- Additional compact content here -->
     <span style="color:#888;">Compact widget UI inspired by your reference.<br>Action icons, alert bar, and info all in one.</span>
-  </div>
-  <!-- Transcript Section -->
-  <div class="transcript-section">
-    <div class="transcript-title">
-      <i class="fa fa-comment-alt"></i> Call Transcript
-    </div>
-    <ul class="transcript-list">
-      <li>
-        <span class="transcript-icon"><i class="fa fa-user transcript-caller"></i></span>
-        <span class="transcript-bubble"><span class="transcript-caller">Caller:</span> Hello, I need some help with my account.</span>
-        <span class="transcript-time">00:01</span>
-      </li>
-      <li>
-        <span class="transcript-icon"><i class="fa fa-user-tie transcript-agent"></i></span>
-        <span class="transcript-bubble"><span class="transcript-agent">Agent:</span> Sure, I'd be happy to assist you. Can you provide your account number?</span>
-        <span class="transcript-time">00:05</span>
-      </li>
-      <li>
-        <span class="transcript-icon"><i class="fa fa-user transcript-caller"></i></span>
-        <span class="transcript-bubble"><span class="transcript-caller">Caller:</span> It's 123456789.</span>
-        <span class="transcript-time">00:09</span>
-      </li>
-      <li>
-        <span class="transcript-icon"><i class="fa fa-user-tie transcript-agent"></i></span>
-        <span class="transcript-bubble"><span class="transcript-agent">Agent:</span> Thank you. Let me pull up your details.</span>
-        <span class="transcript-time">00:13</span>
-      </li>
-      <!-- Add more transcript lines dynamically as needed -->
-    </ul>
   </div>
 </body>
 </html>
