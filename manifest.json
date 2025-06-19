@@ -1,0 +1,9 @@
+{
+    "name": "TelephonyIntegration",
+    "version": "1.0.0",
+    "description": "Telephony integration using CIF",
+    "url": "index.html",
+    "direction": "Right",
+    "canClose": false,
+    "channelId": "cif-telephony-channel"
+}
