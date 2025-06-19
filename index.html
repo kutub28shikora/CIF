@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Compact Icon Toolbar v7 Style</title>
+  <title>Compact Toolbar v7 Style with Status</title>
   <meta name="viewport" content="width=500, initial-scale=1">
-  <!-- Fluent UI System Icons v1.1.214 (Microsoft) CDN for best match to D365 v7 look -->
-  <link href="https://cdn.jsdelivr.net/npm/@fluentui/font-icons-mdl2@1.0.8/css/icons.css" rel="stylesheet">
+  <!-- Use Fluent UI System Icons CDN (SVG sprite fallback for compatibility) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <style>
     body {
       margin: 0;
@@ -19,7 +19,7 @@
       background: #fff;
       border-bottom: 1px solid #e3e3e3;
       padding: 0 6px;
-      height: 38px;
+      height: 40px;
       gap: 6px;
       font-size: 0;
       box-shadow: 0 1px 2px #eee;
@@ -45,7 +45,7 @@
       color: #0078d4;
       outline: none;
     }
-    .toolbar-btn .ms-Icon {
+    .toolbar-btn i {
       font-size: 19px;
       display: block;
       margin: 0;
@@ -59,11 +59,11 @@
       margin: 0 4px;
     }
     /* Special coloring for certain icons */
-    .btn-new .ms-Icon { color: #45b36a; }
-    .btn-delete .ms-Icon { color: #444; }
-    .btn-refresh .ms-Icon { color: #666; }
-    .btn-visualize .ms-Icon { color: #f5c242; }
-    .btn-email .ms-Icon { color: #2b5f8c; }
+    .btn-new i { color: #45b36a; }
+    .btn-delete i { color: #444; }
+    .btn-refresh i { color: #666; }
+    .btn-visualize i { color: #f5c242; }
+    .btn-email i { color: #2b5f8c; }
     /* Tooltip */
     .toolbar-btn[title]:hover:after {
       content: attr(title);
@@ -84,42 +84,131 @@
     @media (max-width: 480px) {
       .toolbar { max-width: 100vw; min-width: 0; padding: 0 2px; }
       .toolbar-btn { font-size: 15px; padding: 5px 6px; }
-      .toolbar-btn .ms-Icon { font-size: 16px; width: 16px; height: 16px;}
+      .toolbar-btn i { font-size: 16px; width: 16px; height: 16px;}
+    }
+    /* Agent status area */
+    .agent-status-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-right: 10px;
+      font-size: 13px;
+      margin-left: 5px;
+      min-width: 110px;
+    }
+    .avatar {
+      width: 27px;
+      height: 27px;
+      border-radius: 50%;
+      background: #e6f0ff;
+      color: #276ef1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 15px;
+      margin-right: 5px;
+      border: 1px solid #d0daee;
+    }
+    .agent-name {
+      font-weight: 500;
+      color: #222;
+      margin-right: 5px;
+      font-size: 13px;
+      letter-spacing: 0.01em;
+    }
+    .status-indicator {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #28a745;
+      display: inline-block;
+      margin-right: 2px;
+      margin-left: 4px;
+      border: 1.5px solid #fff;
+      box-shadow: 0 0 0 1px #b3d8b2;
+    }
+    .status-in-call {
+      background: #ffd600;
+      box-shadow: 0 0 0 1px #ffeeba;
+    }
+    .status-offline {
+      background: #aaa;
+      box-shadow: 0 0 0 1px #ccc;
+    }
+    .status-text {
+      font-size: 12px;
+      color: #666;
+      font-weight: 500;
+      margin-left: 1px;
     }
   </style>
 </head>
 <body>
   <div class="toolbar">
+    <!-- Agent info and status -->
+    <div class="agent-status-bar">
+      <span class="avatar" id="avatar">KS</span>
+      <span class="agent-name" id="agent-name">Kutub Shikora</span>
+      <span class="status-indicator" id="status-indicator"></span>
+      <span class="status-text" id="status-text"></span>
+    </div>
     <button class="toolbar-btn btn-focused" title="Focused View">
-      <i class="ms-Icon ms-Icon--Tiles"></i>
+      <i class="fa-solid fa-table-cells-large"></i>
     </button>
     <button class="toolbar-btn btn-chart" title="Show Chart">
-      <i class="ms-Icon ms-Icon--BarChart4"></i>
+      <i class="fa-solid fa-chart-column"></i>
     </button>
     <button class="toolbar-btn btn-new" title="New">
-      <i class="ms-Icon ms-Icon--Add"></i>
+      <i class="fa-solid fa-plus"></i>
     </button>
     <button class="toolbar-btn btn-delete" title="Delete">
-      <i class="ms-Icon ms-Icon--Delete"></i>
+      <i class="fa-regular fa-trash-can"></i>
     </button>
     <span class="toolbar-sep"></span>
     <button class="toolbar-btn btn-refresh" title="Refresh">
-      <i class="ms-Icon ms-Icon--Refresh"></i>
+      <i class="fa-solid fa-rotate-right"></i>
     </button>
     <button class="toolbar-btn btn-visualize" title="Visualize this view">
-      <i class="ms-Icon ms-Icon--StackedBarChart"></i>
+      <i class="fa-solid fa-chart-bar"></i>
     </button>
     <button class="toolbar-btn btn-email" title="Email a Link">
-      <i class="ms-Icon ms-Icon--Mail"></i>
+      <i class="fa-regular fa-envelope"></i>
     </button>
     <span class="toolbar-sep"></span>
     <button class="toolbar-btn btn-screenpop" title="Screen Pop Contact" onclick="openContactForm()">
-      <i class="ms-Icon ms-Icon--Contact"></i>
+      <i class="fa-regular fa-address-card"></i>
     </button>
   </div>
-
   <script>
-    // Opens a new contact form in D365 v7 (UCI) via Xrm.Navigation - works when hosted in CRM
+    // Simulated status ("Available", "In Call", "Offline")
+    let currentStatus = "Available";
+    function updateStatus(status) {
+      const ind = document.getElementById('status-indicator');
+      const txt = document.getElementById('status-text');
+      if (status === "Available") {
+        ind.className = "status-indicator";
+        txt.textContent = "Available";
+      } else if (status === "In Call") {
+        ind.className = "status-indicator status-in-call";
+        txt.textContent = "In Call";
+      } else {
+        ind.className = "status-indicator status-offline";
+        txt.textContent = "Offline";
+      }
+    }
+    // Set agent info (customize as needed)
+    document.getElementById('avatar').textContent = "KS";
+    document.getElementById('agent-name').textContent = "Kutub Shikora";
+    updateStatus(currentStatus);
+
+    // Example: Toggle status every 5s for demo - REMOVE in prod!
+    /*setInterval(()=>{
+      currentStatus = currentStatus === "Available" ? "In Call" : "Available";
+      updateStatus(currentStatus);
+    }, 5000);*/
+
+    // Open Contact Form on screen pop
     function openContactForm() {
       if (window.parent && window.parent.Xrm && window.parent.Xrm.Navigation) {
         window.parent.Xrm.Navigation.openForm({
