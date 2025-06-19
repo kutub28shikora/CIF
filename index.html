@@ -6,21 +6,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     :root {
-      --accent: #276ef1;
-      --accent-light: #e6f0ff;
-      --danger: #e62e2d;
-      --success: #28a745;
-      --gray: #f4f6fb;
-      --border: #d2d6e0;
-      --text: #252525;
-      --muted: #7a7a7a;
-      --radius: 12px;
-      --busy: #ffd600;
+      --d365-primary: #0057b8;
+      --d365-primary-hover: #003d80;
+      --d365-danger: #e81123;
+      --d365-danger-hover: #b50d1a;
+      --d365-outline: #d1e6fa;
+      --d365-bg: #f4f6fb;
+      --d365-border: #d2d6e0;
+      --d365-success: #28a745;
+      --d365-busy: #ffd600;
+      --d365-radius: 8px;
+      --d365-font: 'Segoe UI', Arial, sans-serif;
     }
     body {
-      background: var(--gray);
-      font-family: 'Segoe UI', Arial, sans-serif;
-      color: var(--text);
+      background: var(--d365-bg);
+      font-family: var(--d365-font);
+      color: #252525;
       margin: 0;
       padding: 0;
       min-width: 310px;
@@ -33,7 +34,7 @@
     }
     .widget-container {
       background: #fff;
-      border-radius: var(--radius);
+      border-radius: 12px;
       box-shadow: 0 6px 24px 0 rgba(60,72,88,0.14);
       margin-top: 28px;
       padding: 32px 28px 20px 28px;
@@ -41,7 +42,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      border: 1px solid var(--border);
+      border: 1px solid var(--d365-border);
     }
     .agent-header {
       width: 100%;
@@ -57,24 +58,24 @@
     .agent-avatar {
       width: 38px;
       height: 38px;
-      background: var(--accent-light);
+      background: #e6f0ff;
       border-radius: 50%;
       margin-right: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 20px;
-      color: var(--accent);
+      color: var(--d365-primary);
       font-weight: 600;
     }
     .agent-name {
       font-weight: 600;
       font-size: 15px;
-      color: var(--text);
+      color: #252525;
     }
     .agent-status {
       font-size: 13px;
-      color: var(--muted);
+      color: #7a7a7a;
       margin-left: 3px;
       display: flex;
       align-items: center;
@@ -85,30 +86,27 @@
       height: 9px;
       border-radius: 50%;
       margin-right: 6px;
-      background: var(--success);
+      background: var(--d365-success);
       vertical-align: middle;
       transition: background 0.2s;
     }
-    .status-available {
-      background: var(--success);
-    }
-    .status-in-call {
-      background: var(--busy);
-    }
+    .status-available { background: var(--d365-success); }
+    .status-in-call { background: var(--d365-busy); }
+
     .panel {
       width: 100%;
-      background: var(--gray);
+      background: var(--d365-bg);
       border-radius: 10px;
       padding: 18px 16px 14px 16px;
       margin-bottom: 18px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      border: 1.5px solid var(--border);
+      border: 1.5px solid var(--d365-border);
     }
     .call-state {
       font-size: 14px;
-      color: var(--muted);
+      color: #7a7a7a;
       margin-bottom: 8px;
       font-weight: 500;
     }
@@ -116,12 +114,13 @@
       font-size: 20px;
       font-weight: 600;
       margin-bottom: 5px;
-      color: var(--accent);
+      color: var(--d365-primary);
+      letter-spacing: 0.03em;
     }
     .call-status-bar {
       margin-bottom: 7px;
       font-size: 13px;
-      color: var(--muted);
+      color: #7a7a7a;
     }
     .no-call {
       color: #ababab;
@@ -134,38 +133,75 @@
       margin: 8px 0 0 0;
       width: 100%;
       justify-content: center;
+      flex-wrap: wrap;
     }
+
+    /* Dynamics 365 button styles */
     .btn {
-      padding: 8px 18px;
-      border-radius: 8px;
+      font-family: var(--d365-font);
       border: none;
-      font-size: 15px;
-      font-weight: 500;
+      border-radius: var(--d365-radius);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 8px 15px;
       cursor: pointer;
+      transition: background 0.14s, color 0.12s, border 0.13s;
       outline: none;
-      background: var(--gray);
-      color: var(--text);
-      transition: background 0.12s;
+      min-width: 92px;
+      margin-bottom: 5px;
       box-shadow: 0 1.5px 6px 0 rgba(60,72,88,0.05);
+      line-height: 1.1;
     }
     .btn:disabled {
-      background: #ededed;
-      color: #b0b0b0;
+      background: #ededed !important;
+      color: #b0b0b0 !important;
+      border: none !important;
       cursor: not-allowed;
-      box-shadow: none;
+      box-shadow: none !important;
+    }
+    .btn-secondary {
+      background: #fff;
+      color: var(--d365-primary);
+      border: 2px solid var(--d365-primary);
+    }
+    .btn-secondary:hover, .btn-secondary:focus {
+      background: var(--d365-outline);
+      color: var(--d365-primary-hover);
+      border-color: var(--d365-primary-hover);
     }
     .btn-primary {
-      background: var(--accent);
+      background: var(--d365-primary);
+      color: #fff;
+      border: 2px solid var(--d365-primary);
+    }
+    .btn-primary:hover, .btn-primary:focus {
+      background: var(--d365-primary-hover);
+      border-color: var(--d365-primary-hover);
       color: #fff;
     }
     .btn-danger {
-      background: var(--danger);
+      background: var(--d365-danger);
+      color: #fff;
+      border: 2px solid var(--d365-danger);
+    }
+    .btn-danger:hover, .btn-danger:focus {
+      background: var(--d365-danger-hover);
+      border-color: var(--d365-danger-hover);
       color: #fff;
     }
-    .btn-pop {
-      background: #ffe9b3;
-      color: #a67c00;
+    .btn-outline {
+      background: #fff;
+      color: var(--d365-primary);
+      border: 2px solid #b8d5f1;
     }
+    .btn-outline:hover, .btn-outline:focus {
+      background: var(--d365-outline);
+      color: var(--d365-primary-hover);
+      border-color: var(--d365-primary-hover);
+    }
+
     .divider {
       width: 100%;
       border-top: 1px solid #e4e6f1;
@@ -180,6 +216,7 @@
     }
     @media (max-width: 370px) {
       .widget-container { width: 96vw; padding: 16px 2vw 14px 2vw; }
+      .btn { min-width: 74px; font-size: 13px; }
     }
   </style>
   <script>
@@ -352,10 +389,10 @@
       <div class="call-status-bar" id="call-status-bar"></div>
       <div class="no-call" id="no-call">No active call.<br>Click below to simulate.</div>
       <div class="call-controls">
-        <button class="btn btn-primary" onclick="simulateIncoming()">Simulate Incoming</button>
-        <button class="btn btn-success" id="answerBtn" onclick="answerCall()">Answer</button>
+        <button class="btn btn-secondary" onclick="simulateIncoming()">Simulate Incoming</button>
+        <button class="btn btn-primary" id="answerBtn" onclick="answerCall()">Answer</button>
         <button class="btn btn-danger" id="endBtn" onclick="endCall()">End</button>
-        <button class="btn btn-pop" id="screenPopBtn" onclick="screenPop()">Screen Pop</button>
+        <button class="btn btn-outline" id="screenPopBtn" onclick="screenPop()">Screen Pop</button>
       </div>
     </div>
     <div class="divider"></div>
