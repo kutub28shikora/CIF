@@ -2,408 +2,248 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CIF Telephony Widget</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compact CIF Widget with Transcript</title>
+  <meta name="viewport" content="width=380, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --d365-primary: #0057b8;
-      --d365-primary-hover: #003d80;
-      --d365-danger: #e81123;
-      --d365-danger-hover: #b50d1a;
-      --d365-outline: #d1e6fa;
-      --d365-bg: #f4f6fb;
-      --d365-border: #d2d6e0;
-      --d365-success: #28a745;
-      --d365-busy: #ffd600;
-      --d365-radius: 8px;
-      --d365-font: 'Segoe UI', Arial, sans-serif;
-    }
     body {
-      background: var(--d365-bg);
-      font-family: var(--d365-font);
-      color: #252525;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f7fafd;
       margin: 0;
       padding: 0;
       min-width: 310px;
-      min-height: 420px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      height: 100vh;
+      max-width: 380px;
+      color: #222;
     }
-    .widget-container {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 6px 24px 0 rgba(60,72,88,0.14);
-      margin-top: 28px;
-      padding: 32px 28px 20px 28px;
-      width: 330px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      border: 1px solid var(--d365-border);
-    }
-    .agent-header {
-      width: 100%;
+    .top-bar {
+      background: #36393f;
+      color: #fff;
+      padding: 4px 8px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      font-size: 19px;
+      border-bottom: 2px solid #d6dee6;
     }
-    .agent-info {
-      display: flex;
-      align-items: center;
+    .top-bar .fa-bars {
+      font-size: 21px;
+      margin-right: 8px;
+      cursor: pointer;
     }
-    .agent-avatar {
-      width: 38px;
-      height: 38px;
-      background: #e6f0ff;
-      border-radius: 50%;
-      margin-right: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      color: var(--d365-primary);
-      font-weight: 600;
-    }
-    .agent-name {
-      font-weight: 600;
+    .top-bar .fa-chevron-down {
+      margin-left: 6px;
       font-size: 15px;
-      color: #252525;
+      cursor: pointer;
+      color: #b5b5b5;
     }
-    .agent-status {
-      font-size: 13px;
-      color: #7a7a7a;
-      margin-left: 3px;
+    .control-bar {
+      background: #44474f;
       display: flex;
       align-items: center;
+      padding: 3px 4px;
+      font-size: 17px;
+      gap: 14px;
+      border-bottom: 1px solid #e6e6e6;
+      justify-content: flex-start;
     }
-    .status-indicator {
-      display: inline-block;
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      margin-right: 6px;
-      background: var(--d365-success);
-      vertical-align: middle;
-      transition: background 0.2s;
+    .control-bar i {
+      color: #ededed;
+      padding: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.14s;
     }
-    .status-available { background: var(--d365-success); }
-    .status-in-call { background: var(--d365-busy); }
-
-    .panel {
-      width: 100%;
-      background: var(--d365-bg);
-      border-radius: 10px;
-      padding: 18px 16px 14px 16px;
-      margin-bottom: 18px;
+    .control-bar i:hover {
+      background: #0057b8;
+      color: #fff;
+    }
+    .control-bar .active {
+      background: #0057b8;
+      color: #fff;
+    }
+    .call-alert {
+      background: #d4f7ce;
+      margin: 0;
+      padding: 7px 10px 5px 10px;
+      display: flex;
+      align-items: flex-start;
+      border-bottom: 1px solid #bde6bc;
+      font-size: 13px;
+      min-height: 58px;
+      position: relative;
+    }
+    .call-alert .fa-phone {
+      color: #28a745;
+      font-size: 18px;
+      margin-top: 2px;
+      margin-right: 8px;
+    }
+    .call-alert .alert-content {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      border: 1.5px solid var(--d365-border);
+      gap: 1px;
     }
-    .call-state {
-      font-size: 14px;
-      color: #7a7a7a;
-      margin-bottom: 8px;
-      font-weight: 500;
-    }
-    .call-phone {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 5px;
-      color: var(--d365-primary);
-      letter-spacing: 0.03em;
-    }
-    .call-status-bar {
-      margin-bottom: 7px;
-      font-size: 13px;
-      color: #7a7a7a;
-    }
-    .no-call {
-      color: #ababab;
-      font-size: 14px;
-      margin: 14px 0 6px 0;
-    }
-    .call-controls {
-      display: flex;
-      gap: 12px;
-      margin: 8px 0 0 0;
-      width: 100%;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    /* Dynamics 365 button styles */
-    .btn {
-      font-family: var(--d365-font);
-      border: none;
-      border-radius: var(--d365-radius);
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      padding: 8px 15px;
+    .call-alert .call-edit {
+      position: absolute;
+      top: 2px;
+      right: 6px;
+      color: #888;
+      font-size: 15px;
       cursor: pointer;
-      transition: background 0.14s, color 0.12s, border 0.13s;
-      outline: none;
-      min-width: 92px;
-      margin-bottom: 5px;
-      box-shadow: 0 1.5px 6px 0 rgba(60,72,88,0.05);
-      line-height: 1.1;
+      padding: 2px;
+      border-radius: 3px;
     }
-    .btn:disabled {
-      background: #ededed !important;
-      color: #b0b0b0 !important;
-      border: none !important;
-      cursor: not-allowed;
-      box-shadow: none !important;
+    .call-alert .call-edit:hover {
+      background: #eee;
+      color: #0057b8;
     }
-    .btn-secondary {
-      background: #fff;
-      color: var(--d365-primary);
-      border: 2px solid var(--d365-primary);
+    .call-title {
+      font-weight: 600;
+      font-size: 15px;
+      color: #222;
     }
-    .btn-secondary:hover, .btn-secondary:focus {
-      background: var(--d365-outline);
-      color: var(--d365-primary-hover);
-      border-color: var(--d365-primary-hover);
+    .call-status {
+      font-size: 11px;
+      font-weight: 700;
+      color: #159f3b;
+      letter-spacing: 0.05em;
     }
-    .btn-primary {
-      background: var(--d365-primary);
-      color: #fff;
-      border: 2px solid var(--d365-primary);
-    }
-    .btn-primary:hover, .btn-primary:focus {
-      background: var(--d365-primary-hover);
-      border-color: var(--d365-primary-hover);
-      color: #fff;
-    }
-    .btn-danger {
-      background: var(--d365-danger);
-      color: #fff;
-      border: 2px solid var(--d365-danger);
-    }
-    .btn-danger:hover, .btn-danger:focus {
-      background: var(--d365-danger-hover);
-      border-color: var(--d365-danger-hover);
-      color: #fff;
-    }
-    .btn-outline {
-      background: #fff;
-      color: var(--d365-primary);
-      border: 2px solid #b8d5f1;
-    }
-    .btn-outline:hover, .btn-outline:focus {
-      background: var(--d365-outline);
-      color: var(--d365-primary-hover);
-      border-color: var(--d365-primary-hover);
+    .call-queue {
+      color: #5d6873;
+      font-size: 12px;
+      margin-top: 1px;
     }
 
-    .divider {
-      width: 100%;
-      border-top: 1px solid #e4e6f1;
-      margin: 18px 0 14px 0;
+    .main-content {
+      padding: 10px;
+      font-size: 13px;
     }
-    .footer {
+
+    /* Transcript section */
+    .transcript-section {
+      background: #fff;
+      border-top: 1px solid #dbe4db;
+      padding: 8px 10px 5px 10px;
+      font-size: 13px;
+      color: #222;
+      max-height: 110px;
+      overflow-y: auto;
+    }
+    .transcript-title {
       font-size: 12px;
-      color: #999;
-      text-align: center;
-      margin-top: 6px;
-      line-height: 1.5;
+      font-weight: bold;
+      color: #0057b8;
+      margin-bottom: 4px;
+      letter-spacing: 0.04em;
     }
-    @media (max-width: 370px) {
-      .widget-container { width: 96vw; padding: 16px 2vw 14px 2vw; }
-      .btn { min-width: 74px; font-size: 13px; }
+    .transcript-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .transcript-list li {
+      margin-bottom: 5px;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .transcript-agent {
+      color: #0057b8;
+      font-weight: 600;
+    }
+    .transcript-caller {
+      color: #28a745;
+      font-weight: 600;
+    }
+    .transcript-time {
+      font-size: 10px;
+      color: #888;
+      margin-left: 4px;
+      margin-top: 2px;
+    }
+    .transcript-bubble {
+      background: #f0f4f7;
+      border-radius: 7px;
+      padding: 4px 8px;
+      display: inline-block;
+      max-width: 76%;
+      word-break: break-word;
+    }
+    .transcript-icon {
+      font-size: 13px;
+      margin-right: 2px;
+      margin-top: 2px;
+      opacity: 0.7;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 400px) {
+      body { min-width: 0; }
+      .main-content, .call-alert, .transcript-section { padding-left: 4px; padding-right: 4px; }
     }
   </style>
-  <script>
-    // Simulated agent info
-    const AGENT = { name: "Kutub Shikora", initials: "KS" };
-    let agentStatus = "Available"; // "Available" or "In Call"
-    let currentSession = null;
-    let callTimer = null;
-    let callSeconds = 0;
-
-    function setAgentStatus(newStatus) {
-      agentStatus = newStatus;
-      const statusText = document.getElementById("agent-status-text");
-      const statusIndicator = document.getElementById("status-indicator");
-      if (newStatus === "Available") {
-        statusText.textContent = "Available";
-        statusIndicator.classList.remove("status-in-call");
-        statusIndicator.classList.add("status-available");
-      } else if (newStatus === "In Call") {
-        statusText.textContent = "In Call";
-        statusIndicator.classList.remove("status-available");
-        statusIndicator.classList.add("status-in-call");
-      }
-    }
-
-    // Utility: Format seconds as MM:SS
-    function formatTime(sec) {
-      const m = Math.floor(sec / 60).toString().padStart(2, '0');
-      const s = (sec % 60).toString().padStart(2, '0');
-      return `${m}:${s}`;
-    }
-
-    // Utility: Generate random phone number
-    function randomPhone() {
-      return "+1 " + Math.floor(100 + Math.random()*900) + "-" +
-        Math.floor(100 + Math.random()*900) + "-" +
-        Math.floor(1000 + Math.random()*9000);
-    }
-
-    // Simulate incoming call
-    function simulateIncoming() {
-      const phone = randomPhone();
-      const sessionId = "session-" + Date.now();
-      currentSession = { id: sessionId, phone: phone, state: "incoming" };
-      setCallPanel("incoming");
-      notifyCIFSession();
-    }
-
-    // Answer call
-    function answerCall() {
-      if (!currentSession) return;
-      currentSession.state = "active";
-      setCallPanel("active");
-      setAgentStatus("In Call");
-      callSeconds = 0;
-      callTimer = setInterval(() => {
-        callSeconds++;
-        document.getElementById("call-status-bar").textContent = "In call · " + formatTime(callSeconds);
-      }, 1000);
-    }
-
-    // End call
-    function endCall() {
-      if (!currentSession) return;
-      clearInterval(callTimer);
-      setCallPanel("idle");
-      setAgentStatus("Available");
-      notifyCIFEndSession();
-      currentSession = null;
-    }
-
-    // Screen pop
-    function screenPop() {
-      if (!window.parent.Microsoft || !window.parent.Microsoft.CIFramework || !currentSession) {
-        alert('CIF APIs not available or no call session');
-        return;
-      }
-      window.parent.Microsoft.CIFramework.searchAndOpenRecords(
-        "contact", "telephone1", currentSession.phone.replace(/\D/g, '')
-      ).then(() => {
-        document.getElementById("call-status-bar").textContent = "Screen pop triggered";
-      }).catch(err => {
-        document.getElementById("call-status-bar").textContent = "Screen pop failed: " + err;
-      });
-    }
-
-    // Notify D365 about new session
-    function notifyCIFSession() {
-      if (window.parent.Microsoft && window.parent.Microsoft.CIFramework) {
-        window.parent.Microsoft.CIFramework.addSession({
-          sessionId: currentSession.id,
-          displayName: currentSession.phone,
-          channelType: "voice",
-          entityType: "contact",
-          entityId: "",
-          direction: "inbound"
-        });
-      }
-    }
-
-    // Notify D365 that session ended
-    function notifyCIFEndSession() {
-      if (window.parent.Microsoft && window.parent.Microsoft.CIFramework && currentSession) {
-        window.parent.Microsoft.CIFramework.closeSession(currentSession.id);
-      }
-    }
-
-    // Set the call panel UI state
-    function setCallPanel(state) {
-      const phoneEl = document.getElementById("call-phone");
-      const stateEl = document.getElementById("call-state");
-      const statusEl = document.getElementById("call-status-bar");
-      const answerBtn = document.getElementById("answerBtn");
-      const endBtn = document.getElementById("endBtn");
-      const popBtn = document.getElementById("screenPopBtn");
-      if (state === "incoming") {
-        phoneEl.textContent = currentSession.phone;
-        stateEl.textContent = "Incoming Call";
-        statusEl.textContent = "Ringing...";
-        answerBtn.disabled = false;
-        endBtn.disabled = true;
-        popBtn.disabled = false;
-      } else if (state === "active") {
-        phoneEl.textContent = currentSession.phone;
-        stateEl.textContent = "In Call";
-        statusEl.textContent = "In call · 00:00";
-        answerBtn.disabled = true;
-        endBtn.disabled = false;
-        popBtn.disabled = false;
-      } else {
-        phoneEl.textContent = "";
-        stateEl.textContent = "";
-        statusEl.textContent = "";
-        answerBtn.disabled = true;
-        endBtn.disabled = true;
-        popBtn.disabled = true;
-        document.getElementById("no-call").style.display = '';
-      }
-      document.getElementById("no-call").style.display = (state === "incoming" || state === "active") ? 'none' : '';
-    }
-
-    // On widget load, initialize
-    window.onload = function() {
-      // Agent info
-      document.getElementById("agent-avatar").textContent = AGENT.initials;
-      document.getElementById("agent-name").textContent = AGENT.name;
-      setAgentStatus("Available");
-      setCallPanel("idle");
-    }
-  </script>
 </head>
 <body>
-  <div class="widget-container">
-    <div class="agent-header">
-      <div class="agent-info">
-        <div class="agent-avatar" id="agent-avatar"></div>
-        <div>
-          <div class="agent-name" id="agent-name"></div>
-          <div class="agent-status" id="agent-status">
-            <span class="status-indicator status-available" id="status-indicator"></span>
-            <span id="agent-status-text"></span>
-          </div>
-        </div>
-      </div>
-      <img src="https://img.icons8.com/ios-filled/28/276ef1/phone.png" alt="Phone" style="margin-left:10px;opacity:.72;">
+  <!-- Top Menu Bar -->
+  <div class="top-bar">
+    <span><i class="fa fa-bars"></i> <span style="font-size:15px">Chat</span></span>
+    <i class="fa fa-chevron-down"></i>
+  </div>
+  <!-- Control Bar with Compact Icons -->
+  <div class="control-bar" title="Call Controls">
+    <i class="fa fa-phone" title="Call"></i>
+    <i class="fa fa-pause" title="Hold"></i>
+    <i class="fa fa-microphone" title="Mute"></i>
+    <i class="fa fa-arrow-right-arrow-left" title="Transfer"></i>
+    <i class="fa fa-phone-slash" title="End Call"></i>
+    <i class="fa fa-list" title="Queue"></i>
+    <i class="fa fa-circle" title="Record"></i>
+    <i class="fa fa-lock" title="Lock"></i>
+    <i class="fa fa-th" title="Apps"></i>
+    <i class="fa fa-calendar" title="Schedule"></i>
+  </div>
+  <!-- Call Alert Section (like sample image) -->
+  <div class="call-alert">
+    <i class="fa fa-phone"></i>
+    <div class="alert-content">
+      <span class="call-title">Toll Free</span>
+      <span class="call-status">ALERTING</span>
+      <span class="call-queue">ICOE Agent Queue - Dev</span>
     </div>
-    <div class="panel">
-      <div class="call-state" id="call-state"></div>
-      <div class="call-phone" id="call-phone"></div>
-      <div class="call-status-bar" id="call-status-bar"></div>
-      <div class="no-call" id="no-call">No active call.<br>Click below to simulate.</div>
-      <div class="call-controls">
-        <button class="btn btn-secondary" onclick="simulateIncoming()">Simulate Incoming</button>
-        <button class="btn btn-primary" id="answerBtn" onclick="answerCall()">Answer</button>
-        <button class="btn btn-danger" id="endBtn" onclick="endCall()">End</button>
-        <button class="btn btn-outline" id="screenPopBtn" onclick="screenPop()">Screen Pop</button>
-      </div>
+    <i class="fa fa-pen call-edit" title="Edit"></i>
+  </div>
+  <!-- Main Content (optional) -->
+  <div class="main-content">
+    <span style="color:#888;">Compact widget UI inspired by your reference.<br>Action icons, alert bar, and info all in one.</span>
+  </div>
+  <!-- Transcript Section -->
+  <div class="transcript-section">
+    <div class="transcript-title">
+      <i class="fa fa-comment-alt"></i> Call Transcript
     </div>
-    <div class="divider"></div>
-    <div class="footer">
-      <strong>Widget Tips:</strong><br>
-      - Simulates inbound calls, call handling, and screen pop.<br>
-      - Connects to Dynamics 365 via CIF APIs.<br>
-      - Style & code can be extended for real CTI integration.<br>
-      <br>
-      <span style="color:#bbb;">© 2025 Kutub Shikora</span>
-    </div>
+    <ul class="transcript-list">
+      <li>
+        <span class="transcript-icon"><i class="fa fa-user transcript-caller"></i></span>
+        <span class="transcript-bubble"><span class="transcript-caller">Caller:</span> Hello, I need some help with my account.</span>
+        <span class="transcript-time">00:01</span>
+      </li>
+      <li>
+        <span class="transcript-icon"><i class="fa fa-user-tie transcript-agent"></i></span>
+        <span class="transcript-bubble"><span class="transcript-agent">Agent:</span> Sure, I'd be happy to assist you. Can you provide your account number?</span>
+        <span class="transcript-time">00:05</span>
+      </li>
+      <li>
+        <span class="transcript-icon"><i class="fa fa-user transcript-caller"></i></span>
+        <span class="transcript-bubble"><span class="transcript-caller">Caller:</span> It's 123456789.</span>
+        <span class="transcript-time">00:09</span>
+      </li>
+      <li>
+        <span class="transcript-icon"><i class="fa fa-user-tie transcript-agent"></i></span>
+        <span class="transcript-bubble"><span class="transcript-agent">Agent:</span> Thank you. Let me pull up your details.</span>
+        <span class="transcript-time">00:13</span>
+      </li>
+      <!-- Add more transcript lines dynamically as needed -->
+    </ul>
   </div>
 </body>
 </html>
