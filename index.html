@@ -2,162 +2,120 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Compact CIF Widget</title>
-  <meta name="viewport" content="width=380, initial-scale=1">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>CIF + ACS Widget</title>
+  <script src="https://unpkg.com/@azure/communication-calling@next"></script>
   <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f7fafd;
-      margin: 0;
-      padding: 0;
-      min-width: 310px;
-      max-width: 380px;
-      color: #222;
-    }
-    .top-bar {
-      background: #36393f;
-      color: #fff;
-      padding: 4px 8px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 19px;
-      border-bottom: 2px solid #d6dee6;
-    }
-    .top-bar .fa-bars {
-      font-size: 21px;
-      margin-right: 8px;
-      cursor: pointer;
-    }
-    .top-bar .fa-chevron-down {
-      margin-left: 6px;
-      font-size: 15px;
-      cursor: pointer;
-      color: #b5b5b5;
-    }
-    .control-bar {
-      background: #44474f;
-      display: flex;
-      align-items: center;
-      padding: 3px 4px;
-      font-size: 17px;
-      gap: 14px;
-      border-bottom: 1px solid #e6e6e6;
-      justify-content: flex-start;
-    }
-    .control-bar i {
-      color: #ededed;
-      padding: 5px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.14s;
-    }
-    .control-bar i:hover {
-      background: #0057b8;
-      color: #fff;
-    }
-    .control-bar .active {
-      background: #0057b8;
-      color: #fff;
-    }
-    .call-alert {
-      background: #d4f7ce;
-      margin: 0;
-      padding: 7px 10px 5px 10px;
-      display: flex;
-      align-items: flex-start;
-      border-bottom: 1px solid #bde6bc;
-      font-size: 13px;
-      min-height: 58px;
-      position: relative;
-    }
-    .call-alert .fa-phone {
-      color: #28a745;
-      font-size: 18px;
-      margin-top: 2px;
-      margin-right: 8px;
-    }
-    .call-alert .alert-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-    .call-alert .call-edit {
-      position: absolute;
-      top: 2px;
-      right: 6px;
-      color: #888;
-      font-size: 15px;
-      cursor: pointer;
-      padding: 2px;
-      border-radius: 3px;
-    }
-    .call-alert .call-edit:hover {
-      background: #eee;
-      color: #0057b8;
-    }
-    .call-title {
-      font-weight: 600;
-      font-size: 15px;
-      color: #222;
-    }
-    .call-status {
-      font-size: 11px;
-      font-weight: 700;
-      color: #159f3b;
-      letter-spacing: 0.05em;
-    }
-    .call-queue {
-      color: #5d6873;
-      font-size: 12px;
-      margin-top: 1px;
-    }
-    .main-content {
-      padding: 10px;
-      font-size: 13px;
-    }
-    /* Responsive adjustments */
-    @media (max-width: 400px) {
-      body { min-width: 0; }
-      .main-content, .call-alert { padding-left: 4px; padding-right: 4px; }
-    }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6fb; }
+    .container { background: #fff; border-radius: 8px; box-shadow: 0 2px 12px #0002; max-width: 340px; margin: 30px auto; padding: 26px 18px; }
+    h2 { color: #0057b8; font-size: 1.2em; }
+    button { background: #0057b8; color: #fff; border-radius: 6px; border: none; font-weight: bold; padding: 7px 18px; margin: 8px 4px; cursor: pointer; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    #status { margin-top: 14px; min-height: 24px; color: #666; }
   </style>
 </head>
 <body>
-  <!-- Top Menu Bar -->
-  <div class="top-bar">
-    <span><i class="fa fa-bars"></i> <span style="font-size:15px">Chat</span></span>
-    <i class="fa fa-chevron-down"></i>
-  </div>
-  <!-- Control Bar with Compact Icons -->
-  <div class="control-bar" title="Call Controls">
-    <i class="fa fa-phone" title="Call"></i>
-    <i class="fa fa-pause" title="Hold"></i>
-    <i class="fa fa-microphone" title="Mute"></i>
-    <i class="fa fa-arrow-right-arrow-left" title="Transfer"></i>
-    <i class="fa fa-phone-slash" title="End Call"></i>
-    <i class="fa fa-list" title="Queue"></i>
-    <i class="fa fa-circle" title="Record"></i>
-    <i class="fa fa-lock" title="Lock"></i>
-    <i class="fa fa-th" title="Apps"></i>
-    <i class="fa fa-calendar" title="Schedule"></i>
-  </div>
-  <!-- Call Alert Section (like sample image) -->
-  <div class="call-alert">
-    <i class="fa fa-phone"></i>
-    <div class="alert-content">
-      <span class="call-title">Toll Free</span>
-      <span class="call-status">ALERTING</span>
-      <span class="call-queue">ICOE Agent Queue - Dev</span>
+  <div class="container">
+    <h2>ACS + Dynamics 365 Widget</h2>
+    <div>
+      <button id="simulateBtn">Simulate Incoming Call</button>
+      <button id="answerBtn" disabled>Answer</button>
+      <button id="hangupBtn" disabled>End Call</button>
+      <button id="screenPopBtn" disabled>Screen Pop</button>
     </div>
-    <i class="fa fa-pen call-edit" title="Edit"></i>
+    <div id="status"></div>
+    <div style="margin-top:14px; font-size:11px; color:#999;">
+      Hosted on GitHub Pages: <br>
+      <a href="https://github.com/kutub28shikora/CIF" target="_blank">/kutub28shikora/CIF</a>
+    </div>
   </div>
-  <!-- Main Content (optional) -->
-  <div class="main-content">
-    <!-- Additional compact content here -->
-    <span style="color:#888;">Compact widget UI inspired by your reference.<br>Action icons, alert bar, and info all in one.</span>
-  </div>
+  <script>
+    // --- ACS Setup ---
+    // Replace with a valid user token for quick test purposes!
+    const ACS_TOKEN = "<USER_ACCESS_TOKEN>";
+    let callAgent, currentCall, incomingCall;
+
+    // --- CIF Session ---
+    let sessionId = null, phoneNumber = null;
+
+    async function initACS() {
+      if (!ACS_TOKEN || ACS_TOKEN.match(/[<>{}]/)) return; // Skip if not configured
+      const callClient = new Azure.Communication.Calling.CallClient();
+      const tokenCredential = new Azure.Communication.Calling.AzureCommunicationUserCredential(ACS_TOKEN);
+      callAgent = await callClient.createCallAgent(tokenCredential);
+
+      callAgent.on('incomingCall', async (args) => {
+        incomingCall = args.incomingCall;
+        phoneNumber = incomingCall.callerInfo.identifier.communicationUserId || "Unknown";
+        sessionId = incomingCall.id;
+        setStatus('Incoming ACS call');
+        document.getElementById('answerBtn').disabled = false;
+        document.getElementById('hangupBtn').disabled = true;
+        document.getElementById('screenPopBtn').disabled = false;
+        // Notify Dynamics
+        if (window.parent.Microsoft && window.parent.Microsoft.CIFramework) {
+          window.parent.Microsoft.CIFramework.addSession({
+            sessionId,
+            displayName: phoneNumber,
+            channelType: "voice"
+          });
+        }
+      });
+    }
+
+    // --- UI Logic ---
+    document.getElementById('simulateBtn').onclick = () => {
+      // Simulate incoming call for demo if not using real ACS
+      phoneNumber = "+1" + Math.floor(1000000000 + Math.random()*9000000000);
+      sessionId = "session-" + Date.now();
+      setStatus("Simulated Incoming Call from " + phoneNumber);
+      document.getElementById('answerBtn').disabled = false;
+      document.getElementById('hangupBtn').disabled = true;
+      document.getElementById('screenPopBtn').disabled = false;
+      // Notify Dynamics
+      if (window.parent.Microsoft && window.parent.Microsoft.CIFramework) {
+        window.parent.Microsoft.CIFramework.addSession({
+          sessionId,
+          displayName: phoneNumber,
+          channelType: "voice"
+        });
+      }
+    };
+
+    document.getElementById('answerBtn').onclick = async () => {
+      setStatus("Call answered");
+      document.getElementById('answerBtn').disabled = true;
+      document.getElementById('hangupBtn').disabled = false;
+      // Accept ACS call if real
+      if (incomingCall) {
+        currentCall = await incomingCall.accept();
+      }
+    };
+
+    document.getElementById('hangupBtn').onclick = () => {
+      setStatus("Call ended");
+      document.getElementById('answerBtn').disabled = true;
+      document.getElementById('hangupBtn').disabled = true;
+      document.getElementById('screenPopBtn').disabled = true;
+      if (window.parent.Microsoft && window.parent.Microsoft.CIFramework && sessionId) {
+        window.parent.Microsoft.CIFramework.closeSession(sessionId);
+      }
+      if (currentCall) currentCall.hangUp();
+      incomingCall = null; currentCall = null; sessionId = null;
+    };
+
+    document.getElementById('screenPopBtn').onclick = () => {
+      if (window.parent.Microsoft && window.parent.Microsoft.CIFramework && phoneNumber) {
+        window.parent.Microsoft.CIFramework.searchAndOpenRecords("contact", "telephone1", phoneNumber.replace(/\D/g, ""));
+        setStatus("Screen pop for " + phoneNumber);
+      }
+    };
+
+    function setStatus(msg) {
+      document.getElementById('status').textContent = msg;
+    }
+    
+    // Init ACS if token is set
+    window.onload = initACS;
+  </script>
 </body>
 </html>
