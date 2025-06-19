@@ -2,120 +2,134 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CIF + ACS Widget</title>
-  <script src="https://unpkg.com/@azure/communication-calling@next"></script>
+  <title>Compact Icon Toolbar v7 Style</title>
+  <meta name="viewport" content="width=500, initial-scale=1">
+  <!-- Fluent UI System Icons v1.1.214 (Microsoft) CDN for best match to D365 v7 look -->
+  <link href="https://cdn.jsdelivr.net/npm/@fluentui/font-icons-mdl2@1.0.8/css/icons.css" rel="stylesheet">
   <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6fb; }
-    .container { background: #fff; border-radius: 8px; box-shadow: 0 2px 12px #0002; max-width: 340px; margin: 30px auto; padding: 26px 18px; }
-    h2 { color: #0057b8; font-size: 1.2em; }
-    button { background: #0057b8; color: #fff; border-radius: 6px; border: none; font-weight: bold; padding: 7px 18px; margin: 8px 4px; cursor: pointer; }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    #status { margin-top: 14px; min-height: 24px; color: #666; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-bottom: 1px solid #e3e3e3;
+      padding: 0 6px;
+      height: 38px;
+      gap: 6px;
+      font-size: 0;
+      box-shadow: 0 1px 2px #eee;
+      width: 100%;
+      min-width: 300px;
+      max-width: 700px;
+    }
+    .toolbar-btn {
+      background: none;
+      border: none;
+      padding: 7px 9px 7px 9px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 17px;
+      color: #444;
+      display: flex;
+      align-items: center;
+      transition: background .13s, color .13s;
+      position: relative;
+    }
+    .toolbar-btn:hover, .toolbar-btn:focus {
+      background: #e8f1fb;
+      color: #0078d4;
+      outline: none;
+    }
+    .toolbar-btn .ms-Icon {
+      font-size: 19px;
+      display: block;
+      margin: 0;
+      width: 19px;
+      height: 19px;
+    }
+    .toolbar-sep {
+      width: 1px;
+      height: 22px;
+      background: #e3e3e3;
+      margin: 0 4px;
+    }
+    /* Special coloring for certain icons */
+    .btn-new .ms-Icon { color: #45b36a; }
+    .btn-delete .ms-Icon { color: #444; }
+    .btn-refresh .ms-Icon { color: #666; }
+    .btn-visualize .ms-Icon { color: #f5c242; }
+    .btn-email .ms-Icon { color: #2b5f8c; }
+    /* Tooltip */
+    .toolbar-btn[title]:hover:after {
+      content: attr(title);
+      position: absolute;
+      left: 50%; top: 110%;
+      transform: translateX(-50%);
+      background: #222;
+      color: #fff;
+      padding: 2.5px 9px;
+      font-size: 12px;
+      border-radius: 3px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0.9;
+      z-index: 9;
+    }
+    /* Compact for mobile */
+    @media (max-width: 480px) {
+      .toolbar { max-width: 100vw; min-width: 0; padding: 0 2px; }
+      .toolbar-btn { font-size: 15px; padding: 5px 6px; }
+      .toolbar-btn .ms-Icon { font-size: 16px; width: 16px; height: 16px;}
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>ACS + Dynamics 365 Widget</h2>
-    <div>
-      <button id="simulateBtn">Simulate Incoming Call</button>
-      <button id="answerBtn" disabled>Answer</button>
-      <button id="hangupBtn" disabled>End Call</button>
-      <button id="screenPopBtn" disabled>Screen Pop</button>
-    </div>
-    <div id="status"></div>
-    <div style="margin-top:14px; font-size:11px; color:#999;">
-      Hosted on GitHub Pages: <br>
-      <a href="https://github.com/kutub28shikora/CIF" target="_blank">/kutub28shikora/CIF</a>
-    </div>
+  <div class="toolbar">
+    <button class="toolbar-btn btn-focused" title="Focused View">
+      <i class="ms-Icon ms-Icon--Tiles"></i>
+    </button>
+    <button class="toolbar-btn btn-chart" title="Show Chart">
+      <i class="ms-Icon ms-Icon--BarChart4"></i>
+    </button>
+    <button class="toolbar-btn btn-new" title="New">
+      <i class="ms-Icon ms-Icon--Add"></i>
+    </button>
+    <button class="toolbar-btn btn-delete" title="Delete">
+      <i class="ms-Icon ms-Icon--Delete"></i>
+    </button>
+    <span class="toolbar-sep"></span>
+    <button class="toolbar-btn btn-refresh" title="Refresh">
+      <i class="ms-Icon ms-Icon--Refresh"></i>
+    </button>
+    <button class="toolbar-btn btn-visualize" title="Visualize this view">
+      <i class="ms-Icon ms-Icon--StackedBarChart"></i>
+    </button>
+    <button class="toolbar-btn btn-email" title="Email a Link">
+      <i class="ms-Icon ms-Icon--Mail"></i>
+    </button>
+    <span class="toolbar-sep"></span>
+    <button class="toolbar-btn btn-screenpop" title="Screen Pop Contact" onclick="openContactForm()">
+      <i class="ms-Icon ms-Icon--Contact"></i>
+    </button>
   </div>
+
   <script>
-    // --- ACS Setup ---
-    // Replace with a valid user token for quick test purposes!
-    const ACS_TOKEN = "<USER_ACCESS_TOKEN>";
-    let callAgent, currentCall, incomingCall;
-
-    // --- CIF Session ---
-    let sessionId = null, phoneNumber = null;
-
-    async function initACS() {
-      if (!ACS_TOKEN || ACS_TOKEN.match(/[<>{}]/)) return; // Skip if not configured
-      const callClient = new Azure.Communication.Calling.CallClient();
-      const tokenCredential = new Azure.Communication.Calling.AzureCommunicationUserCredential(ACS_TOKEN);
-      callAgent = await callClient.createCallAgent(tokenCredential);
-
-      callAgent.on('incomingCall', async (args) => {
-        incomingCall = args.incomingCall;
-        phoneNumber = incomingCall.callerInfo.identifier.communicationUserId || "Unknown";
-        sessionId = incomingCall.id;
-        setStatus('Incoming ACS call');
-        document.getElementById('answerBtn').disabled = false;
-        document.getElementById('hangupBtn').disabled = true;
-        document.getElementById('screenPopBtn').disabled = false;
-        // Notify Dynamics
-        if (window.parent.Microsoft && window.parent.Microsoft.CIFramework) {
-          window.parent.Microsoft.CIFramework.addSession({
-            sessionId,
-            displayName: phoneNumber,
-            channelType: "voice"
-          });
-        }
-      });
-    }
-
-    // --- UI Logic ---
-    document.getElementById('simulateBtn').onclick = () => {
-      // Simulate incoming call for demo if not using real ACS
-      phoneNumber = "+1" + Math.floor(1000000000 + Math.random()*9000000000);
-      sessionId = "session-" + Date.now();
-      setStatus("Simulated Incoming Call from " + phoneNumber);
-      document.getElementById('answerBtn').disabled = false;
-      document.getElementById('hangupBtn').disabled = true;
-      document.getElementById('screenPopBtn').disabled = false;
-      // Notify Dynamics
-      if (window.parent.Microsoft && window.parent.Microsoft.CIFramework) {
-        window.parent.Microsoft.CIFramework.addSession({
-          sessionId,
-          displayName: phoneNumber,
-          channelType: "voice"
+    // Opens a new contact form in D365 v7 (UCI) via Xrm.Navigation - works when hosted in CRM
+    function openContactForm() {
+      if (window.parent && window.parent.Xrm && window.parent.Xrm.Navigation) {
+        window.parent.Xrm.Navigation.openForm({
+          entityName: "contact",
+          useQuickCreateForm: false
         });
+      } else {
+        alert("Contact form open requested (Xrm.Navigation not available in this context).");
       }
-    };
-
-    document.getElementById('answerBtn').onclick = async () => {
-      setStatus("Call answered");
-      document.getElementById('answerBtn').disabled = true;
-      document.getElementById('hangupBtn').disabled = false;
-      // Accept ACS call if real
-      if (incomingCall) {
-        currentCall = await incomingCall.accept();
-      }
-    };
-
-    document.getElementById('hangupBtn').onclick = () => {
-      setStatus("Call ended");
-      document.getElementById('answerBtn').disabled = true;
-      document.getElementById('hangupBtn').disabled = true;
-      document.getElementById('screenPopBtn').disabled = true;
-      if (window.parent.Microsoft && window.parent.Microsoft.CIFramework && sessionId) {
-        window.parent.Microsoft.CIFramework.closeSession(sessionId);
-      }
-      if (currentCall) currentCall.hangUp();
-      incomingCall = null; currentCall = null; sessionId = null;
-    };
-
-    document.getElementById('screenPopBtn').onclick = () => {
-      if (window.parent.Microsoft && window.parent.Microsoft.CIFramework && phoneNumber) {
-        window.parent.Microsoft.CIFramework.searchAndOpenRecords("contact", "telephone1", phoneNumber.replace(/\D/g, ""));
-        setStatus("Screen pop for " + phoneNumber);
-      }
-    };
-
-    function setStatus(msg) {
-      document.getElementById('status').textContent = msg;
     }
-    
-    // Init ACS if token is set
-    window.onload = initACS;
   </script>
 </body>
 </html>
