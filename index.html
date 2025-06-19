@@ -15,6 +15,7 @@
       --text: #252525;
       --muted: #7a7a7a;
       --radius: 12px;
+      --busy: #ffd600;
     }
     body {
       background: var(--gray);
@@ -75,6 +76,8 @@
       font-size: 13px;
       color: var(--muted);
       margin-left: 3px;
+      display: flex;
+      align-items: center;
     }
     .status-indicator {
       display: inline-block;
@@ -84,6 +87,13 @@
       margin-right: 6px;
       background: var(--success);
       vertical-align: middle;
+      transition: background 0.2s;
+    }
+    .status-available {
+      background: var(--success);
+    }
+    .status-in-call {
+      background: var(--busy);
     }
     .panel {
       width: 100%;
@@ -168,17 +178,32 @@
       margin-top: 6px;
       line-height: 1.5;
     }
-    /* Responsive for narrow widget panels */
     @media (max-width: 370px) {
       .widget-container { width: 96vw; padding: 16px 2vw 14px 2vw; }
     }
   </style>
   <script>
     // Simulated agent info
-    const AGENT = { name: "Kutub Shikora", initials: "KS", status: "Available" };
+    const AGENT = { name: "Kutub Shikora", initials: "KS" };
+    let agentStatus = "Available"; // "Available" or "In Call"
     let currentSession = null;
     let callTimer = null;
     let callSeconds = 0;
+
+    function setAgentStatus(newStatus) {
+      agentStatus = newStatus;
+      const statusText = document.getElementById("agent-status-text");
+      const statusIndicator = document.getElementById("status-indicator");
+      if (newStatus === "Available") {
+        statusText.textContent = "Available";
+        statusIndicator.classList.remove("status-in-call");
+        statusIndicator.classList.add("status-available");
+      } else if (newStatus === "In Call") {
+        statusText.textContent = "In Call";
+        statusIndicator.classList.remove("status-available");
+        statusIndicator.classList.add("status-in-call");
+      }
+    }
 
     // Utility: Format seconds as MM:SS
     function formatTime(sec) {
@@ -208,6 +233,7 @@
       if (!currentSession) return;
       currentSession.state = "active";
       setCallPanel("active");
+      setAgentStatus("In Call");
       callSeconds = 0;
       callTimer = setInterval(() => {
         callSeconds++;
@@ -220,6 +246,7 @@
       if (!currentSession) return;
       clearInterval(callTimer);
       setCallPanel("idle");
+      setAgentStatus("Available");
       notifyCIFEndSession();
       currentSession = null;
     }
@@ -299,8 +326,7 @@
       // Agent info
       document.getElementById("agent-avatar").textContent = AGENT.initials;
       document.getElementById("agent-name").textContent = AGENT.name;
-      document.getElementById("agent-status").innerHTML =
-        '<span class="status-indicator"></span>' + AGENT.status;
+      setAgentStatus("Available");
       setCallPanel("idle");
     }
   </script>
@@ -312,7 +338,10 @@
         <div class="agent-avatar" id="agent-avatar"></div>
         <div>
           <div class="agent-name" id="agent-name"></div>
-          <div class="agent-status" id="agent-status"></div>
+          <div class="agent-status" id="agent-status">
+            <span class="status-indicator status-available" id="status-indicator"></span>
+            <span id="agent-status-text"></span>
+          </div>
         </div>
       </div>
       <img src="https://img.icons8.com/ios-filled/28/276ef1/phone.png" alt="Phone" style="margin-left:10px;opacity:.72;">
