@@ -1,10 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Telephony CIF Adapter</title>
-    <script src="adapter.js"></script>
+  <title>Simple CIF Widget</title>
+  <script>
+    function notifyCall() {
+      if (window.parent.Microsoft && window.parent.Microsoft.CIFramework) {
+        window.parent.Microsoft.CIFramework.setClickToAct(true);
+        window.parent.Microsoft.CIFramework.addEventListener('onClickToAct', () => {
+          alert('Call event triggered!');
+        });
+      } else {
+        alert('CIF not available');
+      }
+    }
+  </script>
 </head>
-<body style="margin:0;padding:0;">
-    <iframe id="telephony-widget" src="https://stedis.odigo.cloud/agent-ui" width="100%" height="500 px" style="border:none;"></iframe>
+<body>
+  <h2>Test CIF Widget</h2>
+  <button onclick="notifyCall()">Simulate Call</button>
 </body>
 </html>
