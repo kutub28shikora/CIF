@@ -1,22 +1,127 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Simple CIF Widget</title>
+  <title>Sample CIF Telephony Widget</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 10px; }
+    .call-controls { margin-top: 15px; }
+    .call-info { margin-bottom: 10px; }
+    button { margin-right: 8px; }
+    #status { margin: 8px 0; color: #2d6a4f; }
+  </style>
   <script>
-    function notifyCall() {
-      if (window.parent.Microsoft && window.parent.Microsoft.CIFramework) {
-        window.parent.Microsoft.CIFramework.setClickToAct(true);
-        window.parent.Microsoft.CIFramework.addEventListener('onClickToAct', () => {
-          alert('Call event triggered!');
-        });
-      } else {
-        alert('CIF not available');
+    // Store session for multiple calls
+    let currentSession = null;
+
+    // Utility: Generate random phone number
+    function randomPhone() {
+      return "+1" + Math.floor(1000000000 + Math.random()*9000000000);
+    }
+
+    // Simulate incoming call
+    function simulateIncoming() {
+      const phone = randomPhone();
+      const sessionId = "session-" + Date.now();
+      currentSession = { id: sessionId, phone: phone, state: "incoming" };
+      document.getElementById("call-info").textContent = "Incoming call from " + phone;
+      document.getElementById("status").textContent = "Ringing...";
+      document.getElementById("answerBtn").disabled = false;
+      document.getElementById("endBtn").disabled = true;
+      document.getElementById("screenPopBtn").disabled = false;
+      // Notify Dynamics 365 about the incoming call session
+      notifyCIFSession();
+    }
+
+    // Answer call
+    function answerCall() {
+      if (!currentSession) return;
+      currentSession.state = "active";
+      document.getElementById("call-info").textContent = "Call with " + currentSession.phone;
+      document.getElementById("status").textContent = "In call";
+      document.getElementById("answerBtn").disabled = true;
+      document.getElementById("endBtn").disabled = false;
+    }
+
+    // End call
+    function endCall() {
+      if (!currentSession) return;
+      document.getElementById("call-info").textContent = "No active call";
+      document.getElementById("status").textContent = "Idle";
+      document.getElementById("answerBtn").disabled = true;
+      document.getElementById("endBtn").disabled = true;
+      document.getElementById("screenPopBtn").disabled = true;
+      // Notify Dynamics 365 that call ended
+      notifyCIFEndSession();
+      currentSession = null;
+    }
+
+    // Screen pop (open corresponding contact or lead in Dynamics)
+    function screenPop() {
+      if (!window.parent.Microsoft || !window.parent.Microsoft.CIFramework || !currentSession) {
+        alert('CIF APIs not available or no call session');
+        return;
       }
+      // Example: pop a contact entity by phone number (customize as needed)
+      window.parent.Microsoft.CIFramework.searchAndOpenRecords(
+        "contact", // entity logical name
+        "telephone1", // field name
+        currentSession.phone // value
+      ).then(() => {
+        document.getElementById("status").textContent = "Screen pop triggered for " + currentSession.phone;
+      }).catch(err => {
+        document.getElementById("status").textContent = "Screen pop failed: " + err;
+      });
+    }
+
+    // Notify Dynamics 365 about new session
+    function notifyCIFSession() {
+      if (window.parent.Microsoft && window.parent.Microsoft.CIFramework) {
+        window.parent.Microsoft.CIFramework.addSession({
+          sessionId: currentSession.id,
+          displayName: currentSession.phone,
+          channelType: "voice",
+          entityType: "contact",
+          entityId: "", // You can look up real entityId by phone in production
+          direction: "inbound"
+        });
+      }
+    }
+
+    // Notify Dynamics 365 that session ended
+    function notifyCIFEndSession() {
+      if (window.parent.Microsoft && window.parent.Microsoft.CIFramework && currentSession) {
+        window.parent.Microsoft.CIFramework.closeSession(currentSession.id);
+      }
+    }
+
+    // On widget load, initialize
+    window.onload = function() {
+      document.getElementById("answerBtn").disabled = true;
+      document.getElementById("endBtn").disabled = true;
+      document.getElementById("screenPopBtn").disabled = true;
+      document.getElementById("status").textContent = "Idle";
+      document.getElementById("call-info").textContent = "No active call";
     }
   </script>
 </head>
 <body>
-  <h2>Test CIF Widget</h2>
-  <button onclick="notifyCall()">Simulate Call</button>
+  <h3>Telephony Widget (CIF Sample)</h3>
+  <div class="call-info" id="call-info">No active call</div>
+  <div id="status"></div>
+  <div class="call-controls">
+    <button onclick="simulateIncoming()">Simulate Incoming Call</button>
+    <button id="answerBtn" onclick="answerCall()">Answer</button>
+    <button id="endBtn" onclick="endCall()">End Call</button>
+    <button id="screenPopBtn" onclick="screenPop()">Screen Pop</button>
+  </div>
+  <hr>
+  <small>
+    <strong>Instructions:</strong><br>
+    - Click "Simulate Incoming Call" to simulate an inbound call.<br>
+    - "Answer" to accept the call, "End Call" to finish.<br>
+    - Use "Screen Pop" to trigger a Dynamics 365 record search by phone number.<br>
+    <br>
+    This widget uses CIF APIs and can be extended for real telephony integration.
+  </small>
 </body>
 </html>
