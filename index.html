@@ -1,21 +1,197 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Sample CIF Telephony Widget</title>
+  <meta charset="UTF-8">
+  <title>CIF Telephony Widget</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: Arial, sans-serif; margin: 10px; }
-    .call-controls { margin-top: 15px; }
-    .call-info { margin-bottom: 10px; }
-    button { margin-right: 8px; }
-    #status { margin: 8px 0; color: #2d6a4f; }
+    :root {
+      --accent: #276ef1;
+      --accent-light: #e6f0ff;
+      --danger: #e62e2d;
+      --success: #28a745;
+      --gray: #f4f6fb;
+      --border: #d2d6e0;
+      --text: #252525;
+      --muted: #7a7a7a;
+      --radius: 12px;
+    }
+    body {
+      background: var(--gray);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      min-width: 310px;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+    }
+    .widget-container {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: 0 6px 24px 0 rgba(60,72,88,0.14);
+      margin-top: 28px;
+      padding: 32px 28px 20px 28px;
+      width: 330px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 1px solid var(--border);
+    }
+    .agent-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .agent-info {
+      display: flex;
+      align-items: center;
+    }
+    .agent-avatar {
+      width: 38px;
+      height: 38px;
+      background: var(--accent-light);
+      border-radius: 50%;
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .agent-name {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--text);
+    }
+    .agent-status {
+      font-size: 13px;
+      color: var(--muted);
+      margin-left: 3px;
+    }
+    .status-indicator {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 6px;
+      background: var(--success);
+      vertical-align: middle;
+    }
+    .panel {
+      width: 100%;
+      background: var(--gray);
+      border-radius: 10px;
+      padding: 18px 16px 14px 16px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 1.5px solid var(--border);
+    }
+    .call-state {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .call-phone {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--accent);
+    }
+    .call-status-bar {
+      margin-bottom: 7px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .no-call {
+      color: #ababab;
+      font-size: 14px;
+      margin: 14px 0 6px 0;
+    }
+    .call-controls {
+      display: flex;
+      gap: 12px;
+      margin: 8px 0 0 0;
+      width: 100%;
+      justify-content: center;
+    }
+    .btn {
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      outline: none;
+      background: var(--gray);
+      color: var(--text);
+      transition: background 0.12s;
+      box-shadow: 0 1.5px 6px 0 rgba(60,72,88,0.05);
+    }
+    .btn:disabled {
+      background: #ededed;
+      color: #b0b0b0;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+    .btn-pop {
+      background: #ffe9b3;
+      color: #a67c00;
+    }
+    .divider {
+      width: 100%;
+      border-top: 1px solid #e4e6f1;
+      margin: 18px 0 14px 0;
+    }
+    .footer {
+      font-size: 12px;
+      color: #999;
+      text-align: center;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    /* Responsive for narrow widget panels */
+    @media (max-width: 370px) {
+      .widget-container { width: 96vw; padding: 16px 2vw 14px 2vw; }
+    }
   </style>
   <script>
-    // Store session for multiple calls
+    // Simulated agent info
+    const AGENT = { name: "Kutub Shikora", initials: "KS", status: "Available" };
     let currentSession = null;
+    let callTimer = null;
+    let callSeconds = 0;
+
+    // Utility: Format seconds as MM:SS
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60).toString().padStart(2, '0');
+      const s = (sec % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
 
     // Utility: Generate random phone number
     function randomPhone() {
-      return "+1" + Math.floor(1000000000 + Math.random()*9000000000);
+      return "+1 " + Math.floor(100 + Math.random()*900) + "-" +
+        Math.floor(100 + Math.random()*900) + "-" +
+        Math.floor(1000 + Math.random()*9000);
     }
 
     // Simulate incoming call
@@ -23,12 +199,7 @@
       const phone = randomPhone();
       const sessionId = "session-" + Date.now();
       currentSession = { id: sessionId, phone: phone, state: "incoming" };
-      document.getElementById("call-info").textContent = "Incoming call from " + phone;
-      document.getElementById("status").textContent = "Ringing...";
-      document.getElementById("answerBtn").disabled = false;
-      document.getElementById("endBtn").disabled = true;
-      document.getElementById("screenPopBtn").disabled = false;
-      // Notify Dynamics 365 about the incoming call session
+      setCallPanel("incoming");
       notifyCIFSession();
     }
 
@@ -36,44 +207,39 @@
     function answerCall() {
       if (!currentSession) return;
       currentSession.state = "active";
-      document.getElementById("call-info").textContent = "Call with " + currentSession.phone;
-      document.getElementById("status").textContent = "In call";
-      document.getElementById("answerBtn").disabled = true;
-      document.getElementById("endBtn").disabled = false;
+      setCallPanel("active");
+      callSeconds = 0;
+      callTimer = setInterval(() => {
+        callSeconds++;
+        document.getElementById("call-status-bar").textContent = "In call · " + formatTime(callSeconds);
+      }, 1000);
     }
 
     // End call
     function endCall() {
       if (!currentSession) return;
-      document.getElementById("call-info").textContent = "No active call";
-      document.getElementById("status").textContent = "Idle";
-      document.getElementById("answerBtn").disabled = true;
-      document.getElementById("endBtn").disabled = true;
-      document.getElementById("screenPopBtn").disabled = true;
-      // Notify Dynamics 365 that call ended
+      clearInterval(callTimer);
+      setCallPanel("idle");
       notifyCIFEndSession();
       currentSession = null;
     }
 
-    // Screen pop (open corresponding contact or lead in Dynamics)
+    // Screen pop
     function screenPop() {
       if (!window.parent.Microsoft || !window.parent.Microsoft.CIFramework || !currentSession) {
         alert('CIF APIs not available or no call session');
         return;
       }
-      // Example: pop a contact entity by phone number (customize as needed)
       window.parent.Microsoft.CIFramework.searchAndOpenRecords(
-        "contact", // entity logical name
-        "telephone1", // field name
-        currentSession.phone // value
+        "contact", "telephone1", currentSession.phone.replace(/\D/g, '')
       ).then(() => {
-        document.getElementById("status").textContent = "Screen pop triggered for " + currentSession.phone;
+        document.getElementById("call-status-bar").textContent = "Screen pop triggered";
       }).catch(err => {
-        document.getElementById("status").textContent = "Screen pop failed: " + err;
+        document.getElementById("call-status-bar").textContent = "Screen pop failed: " + err;
       });
     }
 
-    // Notify Dynamics 365 about new session
+    // Notify D365 about new session
     function notifyCIFSession() {
       if (window.parent.Microsoft && window.parent.Microsoft.CIFramework) {
         window.parent.Microsoft.CIFramework.addSession({
@@ -81,47 +247,97 @@
           displayName: currentSession.phone,
           channelType: "voice",
           entityType: "contact",
-          entityId: "", // You can look up real entityId by phone in production
+          entityId: "",
           direction: "inbound"
         });
       }
     }
 
-    // Notify Dynamics 365 that session ended
+    // Notify D365 that session ended
     function notifyCIFEndSession() {
       if (window.parent.Microsoft && window.parent.Microsoft.CIFramework && currentSession) {
         window.parent.Microsoft.CIFramework.closeSession(currentSession.id);
       }
     }
 
+    // Set the call panel UI state
+    function setCallPanel(state) {
+      const phoneEl = document.getElementById("call-phone");
+      const stateEl = document.getElementById("call-state");
+      const statusEl = document.getElementById("call-status-bar");
+      const answerBtn = document.getElementById("answerBtn");
+      const endBtn = document.getElementById("endBtn");
+      const popBtn = document.getElementById("screenPopBtn");
+      if (state === "incoming") {
+        phoneEl.textContent = currentSession.phone;
+        stateEl.textContent = "Incoming Call";
+        statusEl.textContent = "Ringing...";
+        answerBtn.disabled = false;
+        endBtn.disabled = true;
+        popBtn.disabled = false;
+      } else if (state === "active") {
+        phoneEl.textContent = currentSession.phone;
+        stateEl.textContent = "In Call";
+        statusEl.textContent = "In call · 00:00";
+        answerBtn.disabled = true;
+        endBtn.disabled = false;
+        popBtn.disabled = false;
+      } else {
+        phoneEl.textContent = "";
+        stateEl.textContent = "";
+        statusEl.textContent = "";
+        answerBtn.disabled = true;
+        endBtn.disabled = true;
+        popBtn.disabled = true;
+        document.getElementById("no-call").style.display = '';
+      }
+      document.getElementById("no-call").style.display = (state === "incoming" || state === "active") ? 'none' : '';
+    }
+
     // On widget load, initialize
     window.onload = function() {
-      document.getElementById("answerBtn").disabled = true;
-      document.getElementById("endBtn").disabled = true;
-      document.getElementById("screenPopBtn").disabled = true;
-      document.getElementById("status").textContent = "Idle";
-      document.getElementById("call-info").textContent = "No active call";
+      // Agent info
+      document.getElementById("agent-avatar").textContent = AGENT.initials;
+      document.getElementById("agent-name").textContent = AGENT.name;
+      document.getElementById("agent-status").innerHTML =
+        '<span class="status-indicator"></span>' + AGENT.status;
+      setCallPanel("idle");
     }
   </script>
 </head>
 <body>
-  <h3>Telephony Widget (CIF Sample)</h3>
-  <div class="call-info" id="call-info">No active call</div>
-  <div id="status"></div>
-  <div class="call-controls">
-    <button onclick="simulateIncoming()">Simulate Incoming Call</button>
-    <button id="answerBtn" onclick="answerCall()">Answer</button>
-    <button id="endBtn" onclick="endCall()">End Call</button>
-    <button id="screenPopBtn" onclick="screenPop()">Screen Pop</button>
+  <div class="widget-container">
+    <div class="agent-header">
+      <div class="agent-info">
+        <div class="agent-avatar" id="agent-avatar"></div>
+        <div>
+          <div class="agent-name" id="agent-name"></div>
+          <div class="agent-status" id="agent-status"></div>
+        </div>
+      </div>
+      <img src="https://img.icons8.com/ios-filled/28/276ef1/phone.png" alt="Phone" style="margin-left:10px;opacity:.72;">
+    </div>
+    <div class="panel">
+      <div class="call-state" id="call-state"></div>
+      <div class="call-phone" id="call-phone"></div>
+      <div class="call-status-bar" id="call-status-bar"></div>
+      <div class="no-call" id="no-call">No active call.<br>Click below to simulate.</div>
+      <div class="call-controls">
+        <button class="btn btn-primary" onclick="simulateIncoming()">Simulate Incoming</button>
+        <button class="btn btn-success" id="answerBtn" onclick="answerCall()">Answer</button>
+        <button class="btn btn-danger" id="endBtn" onclick="endCall()">End</button>
+        <button class="btn btn-pop" id="screenPopBtn" onclick="screenPop()">Screen Pop</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="footer">
+      <strong>Widget Tips:</strong><br>
+      - Simulates inbound calls, call handling, and screen pop.<br>
+      - Connects to Dynamics 365 via CIF APIs.<br>
+      - Style & code can be extended for real CTI integration.<br>
+      <br>
+      <span style="color:#bbb;">© 2025 Kutub Shikora</span>
+    </div>
   </div>
-  <hr>
-  <small>
-    <strong>Instructions:</strong><br>
-    - Click "Simulate Incoming Call" to simulate an inbound call.<br>
-    - "Answer" to accept the call, "End Call" to finish.<br>
-    - Use "Screen Pop" to trigger a Dynamics 365 record search by phone number.<br>
-    <br>
-    This widget uses CIF APIs and can be extended for real telephony integration.
-  </small>
 </body>
 </html>
